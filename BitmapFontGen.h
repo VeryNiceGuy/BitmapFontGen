@@ -41,7 +41,7 @@ struct Color
 
 	Color transform(unsigned char intensity)
 	{
-		double alpha = intensity / 255.0;
+		double alpha = (a / 255.0) * (intensity / 255.0);
 		return {
 			static_cast<unsigned char>((r / 255.0) * alpha * 255),
 			static_cast<unsigned char>((g / 255.0) * alpha * 255),
