@@ -116,7 +116,7 @@ void BitmapFontGen::writeRootEnd(std::ofstream& stream)
 
 void BitmapFontGen::copyPixels(unsigned int bitmapX, unsigned int bitmapY, unsigned int bitmapWidth, unsigned int bitmapHeight, FT_Face face, IWICBitmap* bitmap, Color color)
 {
-	WICRect rect = { 0, 0, static_cast<unsigned int>(bitmapWidth) , static_cast<unsigned int>(bitmapHeight) };
+	WICRect rect = { 0, 0, static_cast<int>(bitmapWidth) , static_cast<int>(bitmapHeight) };
 	IWICBitmapLock* lock = NULL;
 	bitmap->Lock(&rect, WICBitmapLockWrite, &lock);
 
