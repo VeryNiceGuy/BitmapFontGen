@@ -62,7 +62,7 @@ void BitmapFontGen::write(int fontSize, unsigned int bitmapWidth, const char* fo
 		}
 
 		copyPixels(x, y, bitmapWidth, bitmapHeight, face, bitmap, color);
-		glyphs.push_back({charcodes[i], x, y, face->glyph->bitmap.width, face->glyph->bitmap.rows, face->glyph->bitmap_left, face->glyph->bitmap_top, face->glyph->advance.x});
+		glyphs.push_back({charcodes[i], x, y, face->glyph->bitmap.width, face->glyph->bitmap.rows, face->glyph->bitmap_left, face->glyph->bitmap_top, face->glyph->advance.x >> 6});
 
 		x += face->glyph->bitmap.width;
 		maxY = std::max(maxY, face->glyph->bitmap.rows);
@@ -170,7 +170,7 @@ std::vector<KerningPair> BitmapFontGen::getKerningPairs(FT_Face face, std::vecto
 			FT_Get_Kerning(face, left, right, FT_KERNING_DEFAULT, &kerning);
 
 			if (kerning.x != 0)
-				kerningPairs.push_back({left, right, kerning.x});
+				kerningPairs.push_back({left, right, kerning.x >> 6});
 		}
 	}
 	return kerningPairs;
