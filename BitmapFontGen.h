@@ -55,7 +55,7 @@ class BitmapFontGen
 {
 public:
 	static int calculateBitmapHeight(unsigned int bitmapWidth, FT_Face face, std::vector<FT_ULong> charcodes);
-	static void write(int fontSize, unsigned int bitmapWidth, const char* fontPath, const char* bitmapPath, const char* configPath, Color color);
+	static void write(unsigned int fontSize, unsigned int bitmapWidth, const char* fontPath, const char* bitmapPath, const char* configPath, Color color);
 	static std::vector<FT_ULong> getCharcodes(FT_Face face);
 	static std::vector<KerningPair> getKerningPairs(FT_Face face, std::vector<FT_ULong> charcodes);
 	static void writeRootBeginning(std::ofstream& stream);

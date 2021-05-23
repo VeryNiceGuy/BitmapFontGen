@@ -23,7 +23,7 @@ int BitmapFontGen::calculateBitmapHeight(unsigned int bitmapWidth, FT_Face face,
 	return bitmapHeight;
 }
 
-void BitmapFontGen::write(int fontSize, unsigned int bitmapWidth, const char* fontPath, const char* bitmapPath, const char* configPath, Color color) {
+void BitmapFontGen::write(unsigned int fontSize, unsigned int bitmapWidth, const char* fontPath, const char* bitmapPath, const char* configPath, Color color) {
 	std::ofstream config(configPath);
 
 	FT_Library ft;
@@ -203,7 +203,7 @@ void BitmapFontGen::writeKerningPairs(std::vector<KerningPair> pairs, std::ofstr
 
 	stream << "    kerningPairs: [" << std::endl;
 	size_t i = 0;
-	for (auto pair : pairs) {
+	for (auto &pair : pairs) {
 		stream << "        {" << std::endl;
 		stream << "            \"left\":" << pair.left << "," << std::endl;
 		stream << "            \"right\":" << pair.right << "," << std::endl;
@@ -218,8 +218,16 @@ void BitmapFontGen::writeKerningPairs(std::vector<KerningPair> pairs, std::ofstr
 	++i;
 }
 
-int main()
+// BitmapFontGen 20 1024 Arial.otf Bitmap.png Config.cfg 255 0 0 255
+int main(int argc, char* argv[])
 {
-	BitmapFontGen::write(22, 1024, "Arial.otf", "bitmap.png", "config.cfg", {0,0,0,0});
+	auto fontSize = std::stoul(argv[1], nullptr);
+	auto bitmapWidth = std::stoul(argv[2], nullptr);
+	Color color = {
+		static_cast<unsigned char>(std::stoul(argv[6], nullptr)),
+		static_cast<unsigned char>(std::stoul(argv[7], nullptr)),
+		static_cast<unsigned char>(std::stoul(argv[8], nullptr)),
+		static_cast<unsigned char>(std::stoul(argv[9], nullptr)) };
+	BitmapFontGen::write(fontSize, bitmapWidth, argv[3], argv[4], argv[5], color);
 	return 0;
 }
