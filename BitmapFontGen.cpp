@@ -116,7 +116,7 @@ void BitmapFontGen::writeRootEnd(std::ofstream& stream)
 
 void BitmapFontGen::copyPixels(unsigned int bitmapX, unsigned int bitmapY, unsigned int bitmapWidth, unsigned int bitmapHeight, FT_Face face, IWICBitmap* bitmap, Color color)
 {
-	WICRect rect = { 0, 0, bitmapWidth , bitmapHeight };
+	WICRect rect = { 0, 0, static_cast<unsigned int>(bitmapWidth) , static_cast<unsigned int>(bitmapHeight) };
 	IWICBitmapLock* lock = NULL;
 	bitmap->Lock(&rect, WICBitmapLockWrite, &lock);
 
@@ -124,14 +124,15 @@ void BitmapFontGen::copyPixels(unsigned int bitmapX, unsigned int bitmapY, unsig
 	BYTE* pointer = NULL;
 	lock->GetDataPointer(&size, &pointer);
 
-	for (int y = 0; y < face->glyph->bitmap.rows; ++y)
-		for (int x = 0; x < face->glyph->bitmap.width; ++x) {
+	for (unsigned int y = 0; y < face->glyph->bitmap.rows; ++y) {
+		for (unsigned int x = 0; x < face->glyph->bitmap.width; ++x) {
 			Color transformed = color.transform(face->glyph->bitmap.buffer[y * face->glyph->bitmap.pitch + x]);
 			pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 0] = transformed.b;
 			pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 1] = transformed.g;
 			pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 2] = transformed.r;
 			pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 3] = transformed.a;
 		}
+	}
 	lock->Release();
 }
 
