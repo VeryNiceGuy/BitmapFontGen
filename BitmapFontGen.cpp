@@ -127,19 +127,10 @@ void BitmapFontGen::copyPixels(unsigned int bitmapX, unsigned int bitmapY, unsig
 	for (int y = 0; y < face->glyph->bitmap.rows; ++y)
 		for (int x = 0; x < face->glyph->bitmap.width; ++x) {
 			Color transformed = color.transform(face->glyph->bitmap.buffer[y * face->glyph->bitmap.pitch + x]);
-
-			if (face->glyph->bitmap.buffer[y * face->glyph->bitmap.pitch + x] == 0) {
-				pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 0] = 0;
-				pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 1] = 0;
-				pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 2] = 0;
-				pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 3] = 0;
-			}
-			else {
-				pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 0] = transformed.b;
-				pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 1] = transformed.g;
-				pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 2] = transformed.r;
-				pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 3] = transformed.a;
-			}
+			pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 0] = transformed.b;
+			pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 1] = transformed.g;
+			pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 2] = transformed.r;
+			pointer[(bitmapY + y) * (bitmapWidth * 4) + ((bitmapX + x) * 4) + 3] = transformed.a;
 		}
 	lock->Release();
 }
