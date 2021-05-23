@@ -34,7 +34,9 @@ void BitmapFontGen::write(unsigned int fontSize, unsigned int bitmapWidth, const
 
 	auto charcodes = getCharcodes(face);
 	auto kerning = getKerningPairs(face, charcodes);
+
 	std::vector<Glyph> glyphs;
+	std::vector<Whitespace> whitespaces;
 
 	unsigned int x = 0;
 	unsigned int y = 0;
@@ -52,26 +54,29 @@ void BitmapFontGen::write(unsigned int fontSize, unsigned int bitmapWidth, const
 	{
 		FT_Load_Char(face, charcodes[i], FT_LOAD_RENDER | FT_LOAD_TARGET_LIGHT);
 		if (face->glyph->bitmap.buffer == nullptr)
-			continue;
-
-		if ((x + face->glyph->bitmap.width) > bitmapWidth)
+			whitespaces.push_back({ charcodes[i], face->glyph->advance.x >> 6 });
+		else
 		{
-			x = 0;
-			y += maxY;
-			maxY = 0;
+			if ((x + face->glyph->bitmap.width) > bitmapWidth)
+			{
+				x = 0;
+				y += maxY;
+				maxY = 0;
+			}
+
+			copyPixels(x, y, bitmapWidth, bitmapHeight, face, bitmap, color);
+			glyphs.push_back({ charcodes[i], x, y, face->glyph->bitmap.width, face->glyph->bitmap.rows, face->glyph->bitmap_left, face->glyph->bitmap_top, face->glyph->advance.x >> 6 });
+
+			x += face->glyph->bitmap.width;
+			maxY = std::max(maxY, face->glyph->bitmap.rows);
 		}
-
-		copyPixels(x, y, bitmapWidth, bitmapHeight, face, bitmap, color);
-		glyphs.push_back({charcodes[i], x, y, face->glyph->bitmap.width, face->glyph->bitmap.rows, face->glyph->bitmap_left, face->glyph->bitmap_top, face->glyph->advance.x >> 6});
-
-		x += face->glyph->bitmap.width;
-		maxY = std::max(maxY, face->glyph->bitmap.rows);
 	}
 
 	FT_Done_FreeType(ft);
 
 	writeRootBeginning(config);
 	writeGlyphs(glyphs, config);
+	writeWhitespaces(whitespaces, config);
 
 	if(FT_HAS_KERNING(face))
 		writeKerningPairs(kerning, config);
@@ -92,7 +97,7 @@ void BitmapFontGen::write(unsigned int fontSize, unsigned int bitmapWidth, const
 	encoder->CreateNewFrame(&encode, nullptr);
 	encode->Initialize(nullptr);
 
-	auto rrr = encode->WriteSource(bitmap, nullptr);
+	encode->WriteSource(bitmap, nullptr);
 	encode->Commit();
 	encoder->Commit();
 
@@ -193,6 +198,30 @@ void BitmapFontGen::writeGlyphs(std::vector<Glyph> glyphs, std::ofstream& stream
 		stream << std::endl;
 		++i;
 	}
+	stream << "    ]";
+}
+
+void BitmapFontGen::writeWhitespaces(std::vector<Whitespace> whitespaces, std::ofstream& stream)
+{
+	if (whitespaces.empty())
+		return;
+
+	stream << "," << std::endl;
+	stream << "    whitespaces: [" << std::endl;
+
+	size_t i = 0;
+	for (auto& whitespace : whitespaces)
+	{
+		stream << "        {" << std::endl;
+		stream << "            \"codepoint\":" << whitespace.codepoint << "," << std::endl;
+		stream << "            \"advance\":" << whitespace.advance << std::endl;
+		stream << "        }";
+
+		if (i != whitespaces.size() - 1)
+			stream << ",";
+		stream << std::endl;
+		++i;
+	}
 	stream << "    ]" << std::endl;
 }
 
@@ -201,7 +230,9 @@ void BitmapFontGen::writeKerningPairs(std::vector<KerningPair> pairs, std::ofstr
 	if (pairs.empty())
 		return;
 
+	stream << "," << std::endl;
 	stream << "    kerningPairs: [" << std::endl;
+
 	size_t i = 0;
 	for (auto &pair : pairs) {
 		stream << "        {" << std::endl;

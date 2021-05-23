@@ -25,6 +25,12 @@ struct Glyph
 	long advance;
 };
 
+struct Whitespace
+{
+	unsigned long codepoint;
+	long advance;
+};
+
 struct KerningPair
 {
 	unsigned long left;
@@ -61,6 +67,7 @@ public:
 	static void writeRootBeginning(std::ofstream& stream);
 	static void writeRootEnd(std::ofstream& stream);
 	static void writeGlyphs(std::vector<Glyph> glyphs, std::ofstream& stream);
+	static void writeWhitespaces(std::vector<Whitespace> whitespaces, std::ofstream& stream);
 	static void writeKerningPairs(std::vector<KerningPair> pairs, std::ofstream& stream);
 	static void copyPixels(unsigned int bitmapX, unsigned int bitmapY, unsigned int bitmapWidth, unsigned int bitmapHeight, FT_Face face, IWICBitmap* bitmap, Color color);
 };
