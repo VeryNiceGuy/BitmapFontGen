@@ -1,2 +1,2 @@
 # BitmapFontGen
-A Bitmap font generator based on FreeType and WIC.
+A bitmap font generator based on FreeType and WIC.
