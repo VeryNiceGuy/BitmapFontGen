@@ -178,7 +178,7 @@ void BitmapFontGen::writeGlyphs(std::vector<Glyph> glyphs, std::ofstream& stream
 	if (glyphs.empty())
 		return;
 
-	stream << "    glyphs: [" << std::endl;
+	stream << "    \"glyphs\": [" << std::endl;
 	size_t i = 0;
 	for (auto &glyph : glyphs)
 	{
@@ -189,7 +189,7 @@ void BitmapFontGen::writeGlyphs(std::vector<Glyph> glyphs, std::ofstream& stream
 		stream << "            \"width\":" << glyph.width << "," << std::endl;
 		stream << "            \"height\":" << glyph.height << "," << std::endl;
 		stream << "            \"leftBearing\":" << glyph.leftBearing << "," << std::endl;
-		stream << "            \"topBearing\":" << glyph.topBearing << std::endl;
+		stream << "            \"topBearing\":" << glyph.topBearing << "," << std::endl;
 		stream << "            \"advance\":" << glyph.advance << std::endl;
 		stream << "        }";
 
@@ -207,7 +207,7 @@ void BitmapFontGen::writeWhitespaces(std::vector<Whitespace> whitespaces, std::o
 		return;
 
 	stream << "," << std::endl;
-	stream << "    whitespaces: [" << std::endl;
+	stream << "    \"whitespaces\": [" << std::endl;
 
 	size_t i = 0;
 	for (auto& whitespace : whitespaces)
@@ -231,13 +231,13 @@ void BitmapFontGen::writeKerningPairs(std::vector<KerningPair> pairs, std::ofstr
 		return;
 
 	stream << "," << std::endl;
-	stream << "    kerningPairs: [" << std::endl;
+	stream << "    \"kerningPairs\": [" << std::endl;
 
 	size_t i = 0;
 	for (auto &pair : pairs) {
 		stream << "        {" << std::endl;
-		stream << "            \"left\":" << pair.left << "," << std::endl;
-		stream << "            \"right\":" << pair.right << "," << std::endl;
+		stream << "            \"first\":" << pair.left << "," << std::endl;
+		stream << "            \"second\":" << pair.right << "," << std::endl;
 		stream << "            \"kerning\":" << pair.kerning << "," << std::endl;
 		stream << "        }";
 
