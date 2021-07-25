@@ -66,6 +66,7 @@ public:
 	static std::vector<KerningPair> getKerningPairs(FT_Face face, std::vector<FT_ULong> charcodes);
 	static void writeRootBeginning(std::ofstream& stream);
 	static void writeRootEnd(std::ofstream& stream);
+	static void writeLineHeight(long lineHeight, std::ofstream& stream);
 	static void writeGlyphs(std::vector<Glyph> glyphs, std::ofstream& stream);
 	static void writeWhitespaces(std::vector<Whitespace> whitespaces, std::ofstream& stream);
 	static void writeKerningPairs(std::vector<KerningPair> pairs, std::ofstream& stream);

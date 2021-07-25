@@ -4,18 +4,29 @@ int BitmapFontGen::calculateBitmapHeight(unsigned int bitmapWidth, FT_Face face,
 {
 	unsigned int x = 0;
 	unsigned int y = 0;
+	unsigned int maxY = 0;
 	unsigned int bitmapHeight = 1;
 
 	for (size_t i = 0; i < charcodes.size(); ++i)
 	{
-		FT_Load_Char(face, charcodes[i], FT_LOAD_DEFAULT);
-		if (x + face->glyph->bitmap.width > bitmapWidth)
+		if(FT_Load_Char(face, charcodes[i], FT_LOAD_RENDER | FT_LOAD_TARGET_LIGHT))
+			continue;
+
+		if (face->glyph->bitmap.buffer == nullptr)
+			continue;
+
+		if (face->glyph->bitmap.width + x > bitmapWidth)
 		{
 			x = 0;
-			y += face->glyph->bitmap.rows;
+			y += maxY;
+			maxY = 0;
 		}
+
 		x += face->glyph->bitmap.width;
+		maxY = std::max(maxY, face->glyph->bitmap.rows);
 	}
+
+	y += maxY;
 
 	while(bitmapHeight < y)
 		bitmapHeight <<= 1;
@@ -52,12 +63,14 @@ void BitmapFontGen::write(unsigned int fontSize, unsigned int bitmapWidth, const
 
 	for (size_t i = 0; i < charcodes.size(); ++i)
 	{
-		FT_Load_Char(face, charcodes[i], FT_LOAD_RENDER | FT_LOAD_TARGET_LIGHT);
+		if(FT_Load_Char(face, charcodes[i], FT_LOAD_RENDER | FT_LOAD_TARGET_LIGHT))
+			continue;
+
 		if (face->glyph->bitmap.buffer == nullptr)
 			whitespaces.push_back({ charcodes[i], face->glyph->advance.x >> 6 });
 		else
 		{
-			if ((x + face->glyph->bitmap.width) > bitmapWidth)
+			if ((face->glyph->bitmap.width + x) > bitmapWidth)
 			{
 				x = 0;
 				y += maxY;
@@ -72,15 +85,18 @@ void BitmapFontGen::write(unsigned int fontSize, unsigned int bitmapWidth, const
 		}
 	}
 
-	FT_Done_FreeType(ft);
+	
 
 	writeRootBeginning(config);
+	writeLineHeight(face->size->metrics.height >> 6, config);
 	writeGlyphs(glyphs, config);
 	writeWhitespaces(whitespaces, config);
 
 	if(FT_HAS_KERNING(face))
 		writeKerningPairs(kerning, config);
 	writeRootEnd(config);
+
+	FT_Done_FreeType(ft);
 
 	GUID format = GUID_ContainerFormatPng;
 	IWICBitmapEncoder* encoder;
@@ -146,10 +162,10 @@ std::vector<FT_ULong> BitmapFontGen::getCharcodes(FT_Face face)
 	FT_UInt index;
 	std::vector<FT_ULong> charcodes;
 	FT_ULong charcode = FT_Get_First_Char(face, &index);
-	charcodes.push_back(charcode);
+	
 	while (index != 0) {
-		charcode = FT_Get_Next_Char(face, charcode, &index);
 		charcodes.push_back(charcode);
+		charcode = FT_Get_Next_Char(face, charcode, &index);
 	}
 	return charcodes;
 }
@@ -171,6 +187,11 @@ std::vector<KerningPair> BitmapFontGen::getKerningPairs(FT_Face face, std::vecto
 		}
 	}
 	return kerningPairs;
+}
+
+void BitmapFontGen::writeLineHeight(long lineHeight, std::ofstream& stream)
+{
+	stream << "    \"lineHeight\":" << lineHeight << std::endl;
 }
 
 void BitmapFontGen::writeGlyphs(std::vector<Glyph> glyphs, std::ofstream& stream)
